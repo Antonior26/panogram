@@ -342,6 +342,20 @@ var PedigreeEditor = Class.create({
                 'function' : 'setGelFamilyId'
             },
             {
+                'name' : 'samples',
+                'label' : 'Samples',
+                'type' : 'multi',
+                'tab': 'Gel',
+                'function' : 'setSamples'
+            },
+            {
+                'name' : 'programmeConsent',
+                'label' : 'ProgrammeConsent',
+                'type' : 'checkbox',
+                'tab': 'Gel',
+                'function' : 'setProgrammeConsent'
+            },
+            {
                 'name' : 'primaryFindingConsent',
                 'label' : 'PrimaryFindingConsent',
                 'type' : 'checkbox',
@@ -349,11 +363,18 @@ var PedigreeEditor = Class.create({
                 'function' : 'setPrimaryFindingConsent'
             },
             {
-                'name' : 'samples',
-                'label' : 'Samples',
-                'type' : 'multi',
+                'name' : 'secondaryFindingConsent',
+                'label' : 'SecondaryFindingConsent',
+                'type' : 'checkbox',
                 'tab': 'Gel',
-                'function' : 'setSamples'
+                'function' : 'setSecondaryFindingConsent'
+            },
+            {
+                'name' : 'carrierStatusConsent',
+                'label' : 'CarrierStatusConsent',
+                'type' : 'checkbox',
+                'tab': 'Gel',
+                'function' : 'setCarrierStatusConsent'
             },
             {
                 'name' : 'gender',

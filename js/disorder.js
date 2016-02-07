@@ -80,3 +80,7 @@ Disorder.desanitizeID = function(disorderID) {
 Disorder.getOMIMServiceURL = function() {
     return 'http://playground.phenotips.org' + (new XWiki.Document('OmimService', 'PhenoTips').getURL("get", "outputSyntax=plain"));
 }
+
+Disorder.getPanelsServiceURL = function() {
+    return 'https://bioinfo.extge.co.uk/crowdsourcing/WebServices/list_panels';
+}

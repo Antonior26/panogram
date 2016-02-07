@@ -152,7 +152,7 @@ var AbstractNode = Class.create( {
         var info = {};
         if (this.getComments() != "")
             info['comments'] = this.getComments();
-        return info;;
+        return info;
     },
 
     /**

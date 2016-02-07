@@ -152,6 +152,88 @@ NodeMenu = Class.create({
                 });
             }
         });
+        // Panel App
+        this.form.select('input.suggest-panelApp').each(function(item) {
+            if (!item.hasClassName('initialized')) {
+                var geneServiceURL = 'https://bioinfo.extge.co.uk/crowdsourcing/WebServices/list_panels/?'
+                //console.log("GeneService URL: " + geneServiceURL);
+                item._suggest = new PhenoTips.widgets.Suggest(item, {
+                    script: geneServiceURL,
+                    varname: "Name",
+                    noresults: "No matching terms",
+                    resultsParameter : "result",
+                    json: true,
+                    resultId : "Name",
+                    resultValue : "Name",
+                    resultInfo : {},
+                    enableHierarchy: false,
+                    tooltip : 'gene-info',
+                    fadeOnClear : false,
+                    timeout : 30000,
+                    parentContainer : $('body')
+                });
+                if (item.hasClassName('multi') && typeof(PhenoTips.widgets.SuggestPicker) != "undefined") {
+                    item._suggestPicker = new PhenoTips.widgets.SuggestPicker(item, item._suggest, {
+                        'showKey' : false,
+                        'showTooltip' : false,
+                        'showDeleteTool' : true,
+                        'enableSort' : false,
+                        'showClearTool' : true,
+                        'inputType': 'hidden',
+                        'listInsertionElt' : 'input',
+                        'listInsertionPosition' : 'after',
+                        'acceptFreeText' : true
+                    });
+                }
+                item.addClassName('initialized');
+                document.observe('ms:suggest:containerCreated', function(event) {
+                    if (event.memo && event.memo.suggest === item._suggest) {
+                        item._suggest.container.setStyle({'overflow': 'auto', 'maxHeight': document.viewport.getHeight() - item._suggest.container.cumulativeOffset().top + 'px'})
+                    }
+                });
+            }
+        });
+        // Samples
+        this.form.select('input.suggest-samples').each(function(item) {
+            if (!item.hasClassName('initialized')) {
+                var geneServiceURL = 'http://10.0.32.140:8080/opencga/webservices/rest/v1/samples/search?sid=KkmofYkofJ8lmXkkIr13&studyId=2&limit=100&'
+                //console.log("GeneService URL: " + geneServiceURL);
+                item._suggest = new PhenoTips.widgets.Suggest(item, {
+                    script: geneServiceURL,
+                    varname: "name",
+                    noresults: "No matching terms",
+                    resultsParameter : "response[result]",
+                    json: true,
+                    resultId : "Name",
+                    resultValue : "Name",
+                    resultInfo : {},
+                    enableHierarchy: false,
+                    tooltip : 'gene-info',
+                    fadeOnClear : false,
+                    timeout : 30000,
+                    parentContainer : $('body')
+                });
+                if (item.hasClassName('multi') && typeof(PhenoTips.widgets.SuggestPicker) != "undefined") {
+                    item._suggestPicker = new PhenoTips.widgets.SuggestPicker(item, item._suggest, {
+                        'showKey' : false,
+                        'showTooltip' : false,
+                        'showDeleteTool' : true,
+                        'enableSort' : false,
+                        'showClearTool' : true,
+                        'inputType': 'hidden',
+                        'listInsertionElt' : 'input',
+                        'listInsertionPosition' : 'after',
+                        'acceptFreeText' : true
+                    });
+                }
+                item.addClassName('initialized');
+                document.observe('ms:suggest:containerCreated', function(event) {
+                    if (event.memo && event.memo.suggest === item._suggest) {
+                        item._suggest.container.setStyle({'overflow': 'auto', 'maxHeight': document.viewport.getHeight() - item._suggest.container.cumulativeOffset().top + 'px'})
+                    }
+                });
+            }
+        });
         // ethnicities
         this.form.select('input.suggest-ethnicity').each(function(item) {
             if (!item.hasClassName('initialized')) {
@@ -483,7 +565,7 @@ NodeMenu = Class.create({
         },
         'disease-picker' : function (data) {
             var result = this._generateEmptyField(data);
-            var diseasePicker = new Element('input', {type: 'text', 'class': 'suggest multi suggest-omim', name: data.name});
+            var diseasePicker = new Element('input', {type: 'text', 'class': 'suggest multi suggest-panelApp', name: data.name});
             result.insert(diseasePicker);
             diseasePicker._getValue = function() {
               var results = [];
@@ -531,6 +613,32 @@ NodeMenu = Class.create({
             this._attachFieldEventListeners(ethnicityPicker, ['custom:selection:changed']);
             return result;
         },
+        'multi' : function (data) {
+            var result = this._generateEmptyField(data);
+            var multipicker = new Element('input', {type: 'text', 'class': 'suggest multi suggest-samples', name: data.name});
+            result.insert(multipicker);
+            multipicker._getValue = function() {
+              var results = [];
+              var container = this.up('.field-box');
+              if (container) {
+                container.select('input[type=hidden][name=' + data.name + ']').each(function(item){
+                  results.push(item.next('.value') && item.next('.value').firstChild.nodeValue || item.value);
+                });
+              }
+              return [results];
+            }.bind(multipicker);
+            // Forward the 'custom:selection:changed' to the input
+            var _this = this;
+            document.observe('custom:selection:changed', function(event) {
+              if (event.memo && event.memo.fieldName == data.name && event.memo.trigger && event.findElement() != event.memo.trigger && !event.memo.trigger._silent) {
+                 Event.fire(event.memo.trigger, 'custom:selection:changed');
+                _this.reposition();
+              }
+            });
+            this._attachFieldEventListeners(multipicker, ['custom:selection:changed']);
+            return result;
+        },
+
         'hpo-picker' : function (data) {
             var result = this._generateEmptyField(data);
             var hpoPicker = new Element('input', {type: 'text', 'class': 'suggest multi suggest-hpo', name: data.name});
@@ -760,7 +868,7 @@ NodeMenu = Class.create({
         },
         'disease-picker' : function (container, values) {
             var _this = this;
-            var target = container.down('input[type=text].suggest-omim');
+            var target = container.down('input[type=text].suggest-panelApp');
             if (target && target._suggestPicker) {
                 target._silent = true;
                 target._suggestPicker.clearAcceptedList();
@@ -775,7 +883,21 @@ NodeMenu = Class.create({
         },
         'ethnicity-picker' : function (container, values) {
             var _this = this;
-            var target = container.down('input[type=text].suggest-ethnicity');
+            var target = container.down('input[type=text].ethnicity');
+            if (target && target._suggestPicker) {
+                target._silent = true;
+                target._suggestPicker.clearAcceptedList();
+                if (values) {
+                    values.each(function(v) {
+                        target._suggestPicker.addItem(v, v, '');
+                    })
+                }
+                target._silent = false;
+            }
+        },
+        'multi' : function (container, values) {
+            var _this = this;
+            var target = container.down('input[type=text].suggest-samples');
             if (target && target._suggestPicker) {
                 target._silent = true;
                 target._suggestPicker.clearAcceptedList();
@@ -876,6 +998,9 @@ NodeMenu = Class.create({
         'ethnicity-picker' : function (container, inactive) {
             this._toggleFieldVisibility(container, inactive);
         },
+        'multi' : function (container, inactive) {
+            this._toggleFieldVisibility(container, inactive);
+        },
         'hpo-picker' : function (container, inactive) {
             this._toggleFieldVisibility(container, inactive);
         },
@@ -926,6 +1051,9 @@ NodeMenu = Class.create({
             // FIXME: Not implemented
         },
         'ethnicity-picker' : function (container, inactive) {
+            // FIXME: Not implemented
+        },
+        'multi' : function (container, inactive) {
             // FIXME: Not implemented
         },
         'hpo-picker' : function (container, inactive) {

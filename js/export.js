@@ -67,6 +67,63 @@ PedigreeExport.exportAsSimpleJSON = function(pedigree, privacySetting)
    return JSON.stringify(exportObj);
 }
 
+
+/* ===============================================================================================
+ * Gel DataModel
+ *
+ * @param pedigree {PositionedGraph}
+ * ===============================================================================================
+ */
+PedigreeExport.exportAsGELPedigree = function(pedigree, privacySetting)
+{
+   var exportObj = [];
+
+
+
+   for (var i = 0; i <= pedigree.GG.getMaxRealVertexId(); i++) {
+       if (!pedigree.GG.isPerson(i)) continue;
+
+       var person = {"pedigreeId": i};
+
+       // mother & father
+       var parents = pedigree.GG.getParents(i);
+       if (parents.length > 0) {
+           var father = parents[0];
+           var mother = parents[1];
+
+           if ( pedigree.GG.properties[parents[0]]["gender"] == "F" ||
+                pedigree.GG.properties[parents[1]]["gender"] == "M" ) {
+               father = parents[1];
+               mother = parents[0];
+           }
+           person["fatherId"] = father;
+           person["motherId"] = mother;
+       }
+
+       // all other properties
+       var properties = pedigree.GG.properties[i];
+       for (var property in properties) {
+           if (properties.hasOwnProperty(property)) {
+               if (privacySetting != "all") {
+                   if (property == 'lName' || property == 'fName' || property == 'lNameAtB' ||
+                       property == 'dob' || property == 'bob') continue;
+                   if (privacySetting == "minimal" && property == "comments") continue
+               }
+               var converted = PedigreeExport.convertPropertyGel(property, properties[property]);
+               if (converted !== null) {
+                   person[converted.propertyName] = converted.value;
+               }
+           }
+       }
+
+       exportObj.push(person);
+   }
+   // var full = {gelFamilyId: exportObj[0]["gelFamilyId"], participants: exportObj};
+   var full = { gelFamilyId: exportObj[0]["gelFamilyId"], participants: exportObj };
+
+   return JSON.stringify(full);
+}
+
 //===============================================================================================
 
 /*
@@ -299,6 +356,28 @@ PedigreeExport.internalToJSONPropertyMapping = {
         "nodeNumber":    "nodeNumber"
     };
 
+PedigreeExport.internalToRDParticipantPropertyMapping = {
+        "twinGroup":     "twinGroup",
+        "monozygotic":   "monozygotic",
+        "isAdopted":     "adoptedStatus",
+        "lifeStatus":    "lifeStatus",
+        "disorders":     "disorderList",
+        "ethnicities":   "ancestries",
+        "carrierStatus": "affectionStatus",
+        "gender":        "sex",
+        "hpoTerms":      "hpoTermList",
+        "consentStatus": "consentStatus",
+        "gelId": "gelId",
+        "consanguineousPopulation": "consanguineousPopulation",
+        "programmeConsent": "programmeConsent",
+        "carrierStatusConsent": "carrierStatusConsent",
+        "gelFamilyId": "gelFamilyId",
+        "samples": "samples",
+        "dataModelCatalogueVersion": "dataModelCatalogueVersion",
+        "primaryFindingConsent": "primaryFindingConsent"
+
+    };
+
 /*
  * Converts property name from external JSON format to internal - also helps to
  * support aliases for some terms and weed out unsupported terms.
@@ -319,6 +398,29 @@ PedigreeExport.convertProperty = function(internalPropertyName, value) {
             value = "unknown";
     }
         
+    return {"propertyName": externalPropertyName, "value": value };
+}
+
+/*
+ * Converts property name from external GEL DATA MODEL format to internal - also helps to
+ * support aliases for some terms and weed out unsupported terms.
+ */
+PedigreeExport.convertPropertyGel = function(internalPropertyName, value) {
+
+    if (!PedigreeExport.internalToRDParticipantPropertyMapping.hasOwnProperty(internalPropertyName))
+        return null;
+
+    var externalPropertyName = PedigreeExport.internalToRDParticipantPropertyMapping[internalPropertyName];
+
+    if (externalPropertyName == "sex") {
+        if (value == "M")
+            value = "male";
+        else if (value == "F")
+            value = "female";
+        else
+            value = "uncertain";
+    }
+
     return {"propertyName": externalPropertyName, "value": value };
 }
 

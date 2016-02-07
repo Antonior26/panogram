@@ -54,6 +54,18 @@ var Person = Class.create(AbstractPerson, {
         this._evaluated = false;
         this._pedNumber = "";
         this._lostContact = false;
+        this._samples = [];
+        this._gelFamilyId="0000000";
+        this._primaryFindingConsent=false;
+        this._programmeConsent=false;
+        this._carrierStatusConsent=false;
+        this._secondaryFindingConsent=false;
+        this._gelId="";
+        this._consanguineousPopulation="";
+        this._dataModelCatalogueVersion="";
+
+
+
     },
 
     /**
@@ -765,6 +777,94 @@ var Person = Class.create(AbstractPerson, {
         return this._candidateGenes;
     },
 
+    // GEL Properties
+
+
+
+    getSamples: function () {
+        return this._samples
+    },
+
+    setSamples: function (samples) {
+        this._samples = samples
+    },
+
+
+    getGelFamilyId: function () {
+        return this._gelFamilyId
+    },
+
+    setGelFamilyId: function (gelFamilyId) {
+        this._gelFamilyId = gelFamilyId
+    },
+
+
+    getPrimaryFindingConsent: function () {
+        return this._primaryFindingConsent
+    },
+
+    setPrimaryFindingConsent: function (primaryFindingConsent) {
+        this._primaryFindingConsent = primaryFindingConsent
+    },
+
+
+    getProgrammeConsent: function () {
+        return this._programmeConsent
+    },
+
+    setProgrammeConsent: function (programmeConsent) {
+        this._programmeConsent = programmeConsent
+    },
+
+
+    getCarrierStatusConsent: function () {
+        return this._carrierStatusConsent
+    },
+
+    setCarrierStatusConsent: function (carrierStatusConsent) {
+        this._carrierStatusConsent = carrierStatusConsent
+    },
+
+
+    getSecondaryFindingConsent: function () {
+        return this._secondaryFindingConsent
+    },
+
+    setSecondaryFindingConsent: function (secondaryFindingConsent) {
+        this._secondaryFindingConsent = secondaryFindingConsent
+    },
+
+
+    getGelId: function () {
+        return this._gelId
+    },
+
+    setGelId: function (gelId) {
+        this._gelId = gelId
+    },
+
+
+    getConsanguineousPopulation: function () {
+        return this._consanguineousPopulation
+    },
+
+    setConsanguineousPopulation: function (consanguineousPopulation) {
+        this._consanguineousPopulation = consanguineousPopulation
+    },
+
+
+
+    getDataModelCatalogueVersion: function () {
+        return this._dataModelCatalogueVersion
+    },
+
+    setDataModelCatalogueVersion: function (dataModelCatalogueVersion) {
+        this._dataModelCatalogueVersion = dataModelCatalogueVersion
+    },
+
+
+
+
     /**
      * Removes the node and its visuals.
      *
@@ -809,6 +909,7 @@ var Person = Class.create(AbstractPerson, {
         }
         return this.getChildlessStatus();
     },
+
 
     /**
      * Returns an object (to be accepted by the menu) with information about this Person
@@ -871,6 +972,15 @@ var Person = Class.create(AbstractPerson, {
         var inactiveLostContact = this.isProband() || !editor.getGraph().isRelatedToProband(this.getID());
 
         return {
+            samples:        {value: this.getSamples()},
+            gelFamilyId:        {value: this.getGelFamilyId()},
+            gelId:        {value: this.getGelId()},
+            primaryFindingConsent:        {value: this.getPrimaryFindingConsent()},
+            programmeConsent:        {value: this.getProgrammeConsent()},
+            carrierStatusConsent:        {value: this.getCarrierStatusConsent()},
+            secondaryFindingConsent:        {value: this.getSecondaryFindingConsent()},
+            consanguineousPopulation:        {value: this.getConsanguineousPopulation()},
+            dataModelCatalogueVersion:        {value: this.getDataModelCatalogueVersion()},
             identifier:    {value : this.getID()},
             first_name:    {value : this.getFirstName()},
             last_name:     {value : this.getLastName()},
@@ -953,7 +1063,26 @@ var Person = Class.create(AbstractPerson, {
             info['lostContact'] = this.getLostContact();
         if (this.getPedNumber() != "")
             info['nodeNumber'] = this.getPedNumber();
+        if (this.getSamples() != "")
+            info['samples'] = this.getSamples();
+
+
+        if (this.getGelId() != "")
+            info['gelId'] = this.getGelId();
+
+        info['gelFamilyId'] = this.getGelFamilyId();
+        info['primaryFindingConsent'] = this.getPrimaryFindingConsent();
+        info['programmeConsent'] = this.getProgrammeConsent();
+        info['carrierStatusConsent'] = this.getCarrierStatusConsent();
+        info['secondaryFindingConsent'] = this.getSecondaryFindingConsent();
+
+        if (this.getConsanguineousPopulation() != "")
+            info['consanguineousPopulation'] = this.getConsanguineousPopulation();
+        if (this.getDataModelCatalogueVersion() != "")
+            info['dataModelCatalogueVersion'] = this.getDataModelCatalogueVersion();
+
         return info;
+
      },
 
      /**

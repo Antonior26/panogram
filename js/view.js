@@ -374,12 +374,15 @@ var View = Class.create({
         else if (positionedGraph.isPerson(id)) {
             //console.log("-> add person");
             node = new Person(position.x, position.y, id, properties);
+            editor.getGraph().setProperties(id, node.getProperties());
         }
         else {
             throw "addNode(): unsupported node type";
         }
 
         this.getNodeMap()[id] = node;
+
+
 
         return node;
     },
